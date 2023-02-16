@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 from psycopg2.extensions import encodings
-from . import errors, inspect, util
+from . import errors, inspect, util, geo_copy
 
 __all__ = ['CopyManager']
 
@@ -114,7 +114,7 @@ type_formatters = {
     'int2': simple_formatter('h'),
     'int4': simple_formatter('i'),
     'int8': simple_formatter('q'),
-    'float4' : simple_formatter('f'),
+    'float4': simple_formatter('f'),
     'float8': simple_formatter('d'),
     'varchar': str_formatter,
     'bpchar': str_formatter,
@@ -128,6 +128,7 @@ type_formatters = {
     'timestamptz': timestamp,
     'numeric': numeric,
     'uuid': uuid_formatter,
+    'geometry': geo_copy.geometry_formatter,
 }
 
 
@@ -321,7 +322,7 @@ class CopyManager(object):
             for formatter, val in zip(self.formatters, record):
                 f, d = formatter(val)
                 fmt.append(f)
-                rdat.extend(d)
+                rdat += d
             datastream.write(struct.pack(''.join(fmt), *rdat))
         datastream.write(BINCOPY_TRAILER)
 
