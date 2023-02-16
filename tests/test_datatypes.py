@@ -24,10 +24,10 @@ class TypeMixin(db.TemporaryTable):
     null = 'NOT NULL'
     record_count = 3
     extra_sql = None
-    def test_type(self, conn, cursor, schema_table, data):
+    def test_type(self, conn, cursor, schema_table, data, func_dict=dict()):
         bincopy = CopyManager(conn, schema_table, self.cols)
         bincopy.copy(data)
-        select_list = ','.join(self.cols)
+        select_list = ','.join(["%s(%s)" % (func_dict[c], c) if c in func_dict else c for c in self.cols])
         cursor.execute("SELECT %s from %s" % (select_list, schema_table))
         self.checkResults(cursor, data)
 
